@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CurioLabs — Restaurant POS & QR Ordering</title>
+  <meta name="description" content="CurioLabs builds a simple, modern restaurant OS: POS with QR ordering, kitchen display, menu management, and reporting." />
+  <meta property="og:title" content="CurioLabs — Restaurant POS & QR Ordering" />
+  <meta property="og:description" content="A minimal, modern stack for restaurants. POS + QR ordering + KDS + reports." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://curiolabs.ai" />
+  <meta name="theme-color" content="#0b1221" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Modern tech styling */
+    body { font-family: 'Inter', sans-serif; }
+    .card { 
+      @apply rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      @apply border-white/20 bg-white/8 shadow-2xl shadow-indigo-500/10;
+      transform: translateY(-2px);
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glow {
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    }
+    .tech-grid {
+      background-image: 
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+      background-size: 20px 20px;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    .float { animation: float 6s ease-in-out infinite; }
+    .btn-primary {
+      @apply rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 font-medium text-white;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    }
+    .btn-secondary {
+      @apply rounded-xl border border-white/20 px-6 py-3 font-medium text-slate-200 backdrop-blur-sm;
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      @apply bg-white/10 border-white/30;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased selection:bg-indigo-500/30">
+  <!-- NAV -->
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-white/5">
+    <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-20 items-center justify-between">
+        <a href="#" class="flex items-center gap-3 group">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center glow">
+            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+            </svg>
+          </div>
+          <span class="text-xl font-bold tracking-tight gradient-text">CurioLabs</span>
+        </a>
+        <div class="hidden md:flex items-center gap-8 text-sm text-slate-300">
+          <a href="#product" class="hover:text-white transition-colors">Product</a>
+          <a href="#picfinder" class="hover:text-white transition-colors">PicFinder <span class="ml-1 text-[10px] text-slate-400 px-2 py-0.5 rounded-full bg-white/10">in development</span></a>
+          <a href="#contact" class="hover:text-white transition-colors">Contact</a>
+          <a href="#contact" class="btn-primary">Get Demo</a>
+        </div>
+        <button id="menuBtn" class="md:hidden inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm px-3 py-1.5 text-sm hover:bg-white/10 transition-colors">Menu</button>
+      </div>
+    </nav>
+    <!-- mobile menu -->
+    <div id="mobileMenu" class="md:hidden hidden border-t border-white/10 backdrop-blur-xl bg-slate-950/90">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 space-y-3 text-sm text-slate-300">
+        <a href="#product" class="block py-2 hover:text-white transition-colors">Product</a>
+        <a href="#picfinder" class="block py-2 hover:text-white transition-colors">PicFinder (in development)</a>
+        <a href="#contact" class="block py-2 hover:text-white transition-colors">Contact</a>
+        <a href="#contact" class="block mt-4 text-center rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 font-medium text-white">Get Demo</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="relative py-24 overflow-hidden tech-grid">
+    <!-- Background elements -->
+    <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent"></div>
+    <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl float"></div>
+    <div class="absolute top-1/3 right-1/4 w-24 h-24 bg-purple-500/10 rounded-full blur-3xl float" style="animation-delay: -2s;"></div>
+    
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+      <div class="grid md:grid-cols-2 items-center gap-16">
+        <div class="space-y-8">
+          <div class="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs text-slate-300">
+            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            Modern Restaurant OS
+          </div>
+          <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
+            Restaurant operations, 
+            <span class="gradient-text">simplified.</span>
+          </h1>
+          <p class="text-lg text-slate-300 max-w-2xl leading-relaxed">
+            A minimal, modern stack: <strong class="text-white">POS</strong>, 
+            <strong class="text-white">QR ordering</strong>, 
+            <strong class="text-white">Kitchen Display (KDS)</strong>, and 
+            <strong class="text-white">reports</strong> — all in one place.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="#contact" class="btn-primary">Request Demo</a>
+            <a href="#product" class="btn-secondary">Product Overview</a>
+          </div>
+          
+          <!-- Stats or features mini-preview -->
+          <div class="grid grid-cols-3 gap-6 pt-8 border-t border-white/10">
+            <div>
+              <div class="text-2xl font-bold gradient-text">99.9%</div>
+              <div class="text-xs text-slate-400">Uptime</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold gradient-text">< 2s</div>
+              <div class="text-xs text-slate-400">Response Time</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold gradient-text">24/7</div>
+              <div class="text-xs text-slate-400">Support</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="relative">
+          <!-- Main feature card -->
+          <div class="card p-8 glow">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+              <div class="text-sm text-slate-300 font-medium">Unified Restaurant OS</div>
+            </div>
+            <ul class="space-y-4 text-slate-200">
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span>QR ordering (table, pickup, delivery)</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span>POS with modifiers, combos, and discounts</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span>Kitchen Display System (KDS) & tickets</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span>Menu & availability management</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span>Basic analytics & daily reports</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span>Integrations (payments, printers)</span>
+              </li>
+            </ul>
+          </div>
+          
+          <!-- Floating elements -->
+          <div class="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl backdrop-blur-sm border border-white/10 flex items-center justify-center float">
+            <svg class="w-8 h-8 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="absolute -bottom-4 -left-4 w-12 h-12 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl backdrop-blur-sm border border-white/10 flex items-center justify-center float" style="animation-delay: -3s;">
+            <svg class="w-6 h-6 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCT -->
+  <section id="product" class="py-24 border-t border-white/10">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="text-center space-y-4 mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+          <span class="gradient-text">Complete</span> Restaurant Solution
+        </h2>
+        <p class="text-slate-300 max-w-2xl mx-auto">Everything you need to run a modern restaurant, from order to kitchen to analytics.</p>
+      </div>
+      
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="card p-8 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">QR Ordering</h3>
+          <p class="text-slate-300 leading-relaxed">Scan → browse menu with modifiers → pay → ticket routed to KDS/print. Supports table numbers and takeaway.</p>
+        </div>
+        
+        <div class="card p-8 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">POS System</h3>
+          <p class="text-slate-300 leading-relaxed">Fast order entry, discounts, voids, and receipts. Works with compatible printers and payment terminals.</p>
+        </div>
+        
+        <div class="card p-8 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Kitchen Display</h3>
+          <p class="text-slate-300 leading-relaxed">Clear ticketing, course/priority, bump when done. Optional paper printing fallback.</p>
+        </div>
+        
+        <div class="card p-8 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Menu Management</h3>
+          <p class="text-slate-300 leading-relaxed">Categories, items, variants, and real‑time availability. Schedule promos and lunch/dinner menus.</p>
+        </div>
+        
+        <div class="card p-8 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Analytics & Reports</h3>
+          <p class="text-slate-300 leading-relaxed">Daily summary, items sold, top modifiers, and payout snapshots. Export CSV for deeper analysis.</p>
+        </div>
+        
+        <div class="card p-8 group">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Integrations</h3>
+          <p class="text-slate-300 leading-relaxed">Payments and printers. We'll expand based on demand; get in touch with your setup requirements.</p>
+        </div>
+      </div>
+    </div>
+  </section>  <!-- PICFINDER (IN DEV) -->
+    <!-- PICFINDER PREVIEW -->
+  <section id="picfinder" class="py-24 border-t border-white/10 relative overflow-hidden">
+    <!-- Background gradient -->
+    <div class="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-indigo-500/5"></div>
+    
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+      <div class="text-center space-y-6 mb-16">
+        <div class="inline-flex items-center gap-2 rounded-full bg-purple-500/10 border border-purple-500/20 px-4 py-2 text-sm text-purple-300">
+          <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+          Coming Soon
+        </div>
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+          Introducing <span class="gradient-text">PicFinder</span>
+        </h2>
+        <p class="text-slate-300 max-w-3xl mx-auto text-lg">
+          A  photo-delivery tool for event teams and photographers. We'll share updates when ready.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT / CTA -->
+    <!-- CONTACT / CTA -->
+  <section id="contact" class="py-24 border-t border-white/10">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center space-y-4 mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+            Ready to <span class="gradient-text">Transform</span> Your Restaurant?
+          </h2>
+          <p class="text-slate-300 text-lg">Get in touch for a demo or to discuss your restaurant tech needs.</p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-16">
+          <!-- Contact Form -->
+          <div class="card p-8">
+            <h3 class="text-xl font-semibold mb-6">Request a Demo</h3>
+            <form class="space-y-6">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-300 mb-2">First Name</label>
+                  <input type="text" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-300 mb-2">Last Name</label>
+                  <input type="text" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all">
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+                <input type="email" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Restaurant Name</label>
+                <input type="text" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Current Setup</label>
+                <select class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all">
+                  <option value="">Select your current system</option>
+                  <option value="none">No current POS system</option>
+                  <option value="square">Square</option>
+                  <option value="toast">Toast</option>
+                  <option value="clover">Clover</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Tell us about your restaurant</label>
+                <textarea rows="4" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all resize-none" placeholder="Type of cuisine, number of locations, specific needs..."></textarea>
+              </div>
+              
+              <button type="submit" class="w-full btn-primary text-center">Send Demo Request</button>
+            </form>
+          </div>
+          
+          <!-- Contact Info -->
+          <div class="space-y-8">
+            <div class="card p-8">
+              <h3 class="text-xl font-semibold mb-6">Get in Touch</h3>
+              <div class="space-y-6">
+                <div class="flex items-start gap-4">
+                  <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-medium text-slate-200">Email</div>
+                    <div class="text-slate-300 text-sm">
+                      <a href="mailto:darshan@curiolabs.ai" class="hover:text-indigo-400 transition-colors">darshan@curiolabs.ai</a>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="flex items-start gap-4">
+                  <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M17.924 2.617a.997.997 0 00-.215-.322l-.004-.004A.997.997 0 0017 2h-4a1 1 0 100 2h1.586l-3.293 3.293a1 1 0 001.414 1.414L16 5.414V7a1 1 0 102 0V3a.997.997 0 00-.076-.383z"/>
+                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-medium text-slate-200">Location</div>
+                    <div class="text-slate-300 text-sm">Singapore</div>
+                  </div>
+                </div>
+                
+                <div class="flex items-start gap-4">
+                  <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-medium text-slate-200">Response Time</div>
+                    <div class="text-slate-300 text-sm">24-48 hours</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl border border-white/10 p-8">
+              <h4 class="font-semibold mb-3">Why Choose CurioLabs?</h4>
+              <ul class="space-y-2 text-sm text-slate-300">
+                <li class="flex items-center gap-3">
+                  <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div>
+                  Modern, intuitive interface
+                </li>
+                <li class="flex items-center gap-3">
+                  <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div>
+                  All-in-one restaurant solution
+                </li>
+                <li class="flex items-center gap-3">
+                  <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div>
+                  Competitive pricing
+                </li>
+                <li class="flex items-center gap-3">
+                  <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div>
+                  Dedicated support team
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-white/10 bg-gradient-to-b from-transparent to-slate-950/50">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+      <div class="grid md:grid-cols-4 gap-12">
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+              </svg>
+            </div>
+            <span class="text-xl font-bold tracking-tight gradient-text">CurioLabs</span>
+          </div>
+          <p class="text-slate-300 max-w-md mb-6">Modern restaurant technology that simplifies operations. From QR ordering to kitchen displays, we've got your restaurant covered.</p>
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 text-sm text-slate-400">
+              <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              Live & serving restaurants
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <div class="font-semibold mb-4 text-slate-200">Product</div>
+          <ul class="space-y-3 text-sm text-slate-300">
+            <li><a href="#product" class="hover:text-indigo-400 transition-colors">Overview</a></li>
+            <li><a href="#product" class="hover:text-indigo-400 transition-colors">QR Ordering</a></li>
+            <li><a href="#product" class="hover:text-indigo-400 transition-colors">POS System</a></li>
+            <li><a href="#product" class="hover:text-indigo-400 transition-colors">Kitchen Display</a></li>
+            <li><a href="#picfinder" class="hover:text-indigo-400 transition-colors flex items-center gap-2">
+              PicFinder 
+              <span class="text-[10px] text-slate-500 px-2 py-0.5 rounded-full bg-white/10">in dev</span>
+            </a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <div class="font-semibold mb-4 text-slate-200">Company</div>
+          <ul class="space-y-3 text-sm text-slate-300">
+            <li><a href="#contact" class="hover:text-indigo-400 transition-colors">Contact</a></li>
+            <li><a href="#contact" class="hover:text-indigo-400 transition-colors">Request Demo</a></li>
+            <li><a href="mailto:darshan@curiolabs.ai" class="hover:text-indigo-400 transition-colors">Support</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="text-sm text-slate-400">
+          © <span id="year"></span> CurioLabs Pte. Ltd.
+        </div>
+        <div class="text-sm text-slate-400">
+          Built with ❤️ in Singapore
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      const m = document.getElementById('mobileMenu');
+      m.classList.toggle('hidden');
+    });
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
